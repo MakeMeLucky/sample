@@ -1,6 +1,6 @@
 package org.example.application.api;
 
-import org.example.application.microservices.ServiceProcess;
+import org.example.application.microservices.model.Record;
 import org.example.application.services.AppService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.util.List;
 
 @RestController
 public class AppController {
@@ -23,7 +22,7 @@ public class AppController {
             method = RequestMethod.POST,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<List<ServiceProcess>> create(@RequestParam("file") MultipartFile file) throws IOException, JAXBException {
+    public ResponseEntity<Record> create(@RequestParam("file") MultipartFile file) throws IOException, JAXBException {
         return ResponseEntity.ok(appService.create(file));
     }
 

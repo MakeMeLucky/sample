@@ -1,6 +1,17 @@
 ---
 version: '2'
 services:
+  postgres:
+    image: postgres:13.3
+    environment:
+      POSTGRES_DB: "micro"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+    ports:
+      - "25432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
   zookeeper-1:
     image: confluentinc/cp-zookeeper:latest
     environment:
@@ -34,7 +45,13 @@ services:
       kafka-topics --bootstrap-server kafka-1:9092 --list
 
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic my-topic-1 --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic define-order-type --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic send-rpt-notif-head --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic send-notif-empl --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic register-publications-list --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic form-list-publications --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic register-report --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka-1:9092 --create --if-not-exists --topic register-notification --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka-1:9092 --list
@@ -45,17 +62,39 @@ services:
     depends_on:
       - kafka-1
       - init-kafka
-    ports:
-      - 28080:8080
-    environment:
-      - GET_HOSTS_FROM=dns
-    labels:
-      kompose.service.type: LoadBalancer
 
   microservice-2:
     image: microservice2
     depends_on:
       - kafka-1
       - init-kafka
-    ports:
-      - 28081:8081
+
+  microservice-3:
+    image: microservice3
+    depends_on:
+      - kafka-1
+      - init-kafka
+
+  microservice-4:
+    image: microservice4
+    depends_on:
+      - kafka-1
+      - init-kafka
+
+  microservice-5:
+    image: microservice5
+    depends_on:
+      - kafka-1
+      - init-kafka
+
+  microservice-6:
+    image: microservice6
+    depends_on:
+      - kafka-1
+      - init-kafka
+
+  microservice-7:
+    image: microservice7
+    depends_on:
+      - kafka-1
+      - init-kafka
