@@ -67,8 +67,6 @@ public class RecordConverter {
 
         Record record = nextService(sequenceFlows, messageFlows, firstEvent, eventMap, taskMap);
 
-        //postgreComponent.saveToDb(record.getId(), record.getChildRecords().get(0).getId());
-
         kafkaService.sendMessage(record.getId(), record);
 
         return record;

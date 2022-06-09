@@ -9,7 +9,7 @@ import java.time.Instant;
 @Component
 public class PostgreComponent {
 
-    private static final String url = "jdbc:postgresql://localhost:25432/micro";
+    private static final String url = "jdbc:postgresql://localhost:5432/micro";
     private static final String user = "admin";
     private static final String password = "admin";
     private static final String SQL = "INSERT INTO processedmessages(this_service, next_service) "
