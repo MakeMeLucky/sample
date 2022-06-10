@@ -2,14 +2,15 @@ package org.example.application.microservices.converters;
 
 import org.example.application.bpmn.model.*;
 import org.example.application.kafka.KafkaService;
+import org.example.application.microservices.model.MicroService;
 import org.example.application.microservices.model.Record;
-import org.example.application.services.PostgreComponent;
+import org.example.application.services.ClusterService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -17,22 +18,16 @@ import java.util.stream.Collectors;
 public class RecordConverter {
 
     @Autowired
-    PostgreComponent postgreComponent;
+    ClusterService clusterService;
 
     @Autowired
     KafkaService kafkaService;
 
-    private static final Map<String, String> microservicesIds = new HashMap<String, String>() {{
-        put("Определить тип приказа","define-order-type");
-        put("Отправить отчет и уведомление руководителю о выполнении запроса","send-rpt-notif-head");
-        put("Разослать уведомления сотрудникам", "send-notif-empl");
-        put("Регистрация списка публикаций", "register-publications-list");
-        put("Сформировать список публикаций", "form-list-publications");
-        put("Зарегистрировать отчет", "register-report");
-        put("Зарегистрировать уведомление", "register-notification");
-    }};
+    public String convert(Definitions definitions) throws Exception {
 
-    public Record convert(Definitions definitions) {
+        String uuid = String.join("-", UUID.randomUUID().toString(), Long.toString(System.currentTimeMillis()));
+
+        List<MicroService> microServices = clusterService.getAvailableMicroservices();
 
         // message flows
         List<MessageFlow> messageFlows = definitions.getCollaboration().getMessageFlows();
@@ -65,28 +60,45 @@ public class RecordConverter {
                 .filter(fe->fe.getId().startsWith("StartEvent"))
                 .findFirst().orElseThrow(() -> new RuntimeException("No start task"));
 
-        Record record = nextService(sequenceFlows, messageFlows, firstEvent, eventMap, taskMap);
+        Record record = nextService(sequenceFlows, messageFlows, firstEvent, eventMap, taskMap, uuid, microServices);
 
-        kafkaService.sendMessage(record.getId(), record);
+        kafkaService.sendMessage(record.getMicroserviceId(), record);
 
-        return record;
+        return record.getId();
     }
 
     private Record nextService(List<SequenceFlow> sequenceFlows, List<MessageFlow> messageFlows,StartEvent event,
-                               Map<String, StartEvent> eventMap, Map<String, Task> taskMap) {
+                               Map<String, StartEvent> eventMap, Map<String, Task> taskMap, String uuid, List<MicroService> microServices) {
         Record record = new Record();
         String currentSequenceFlowId = event.getOutGoing().getValue();
-        SequenceFlow currentSequenceFlow = sequenceFlows.stream().filter(sf->sf.getId().equals(currentSequenceFlowId)).findFirst().get();
+        SequenceFlow currentSequenceFlow = sequenceFlows.stream()
+                .filter(sf->sf.getId().equals(currentSequenceFlowId))
+                .findFirst()
+                .get();
         String taskId = currentSequenceFlow.getTargetRef();
-        List<MessageFlow> currentMessageFlows = messageFlows.stream().filter(mf->mf.getSourceRef().equals(taskId)).collect(Collectors.toList());
-        List<String> nextEventsIds = currentMessageFlows.stream().map(MessageFlow::getTargetRef).collect(Collectors.toList());
-        List<StartEvent> nextEvents = nextEventsIds.stream().map(eventMap::get).collect(Collectors.toList());
-        record.setRealName(taskMap.get(taskId).getName());
-        record.setId(microservicesIds.get(record.getRealName()));
-        for (StartEvent e : nextEvents) {
-            record.addRecord(nextService(sequenceFlows, messageFlows, e, eventMap, taskMap));
-        }
-            return record;
-    }
+        List<MessageFlow> currentMessageFlows = messageFlows.stream()
+                .filter(mf->mf.getSourceRef().equals(taskId))
+                .collect(Collectors.toList());
+        List<String> nextEventsIds = currentMessageFlows.stream()
+                .map(MessageFlow::getTargetRef)
+                .collect(Collectors.toList());
+        List<StartEvent> nextEvents = nextEventsIds.stream()
+                .map(eventMap::get)
+                .collect(Collectors.toList());
 
+        MicroService microService = microServices.stream()
+                .filter(ms -> taskMap.get(taskId).getName().equals(ms.getMicroserviceName()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Unknown task type"));
+
+        record.setId(uuid);
+        record.setMicroserviceName(microService.getMicroserviceName());
+        record.setMicroserviceId(microService.getMicroserviceId());
+
+        for (StartEvent e : nextEvents) {
+            record.addRecord(nextService(sequenceFlows, messageFlows, e, eventMap, taskMap, uuid, microServices));
+        }
+
+        return record;
+    }
 }

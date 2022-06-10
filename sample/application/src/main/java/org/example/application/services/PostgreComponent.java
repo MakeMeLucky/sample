@@ -1,59 +1,68 @@
 package org.example.application.services;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.example.application.microservices.model.DbRecord;
+import org.example.application.microservices.model.MicroService;
 import org.example.application.microservices.model.Record;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
-import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 @Component
 public class PostgreComponent {
 
-    private static final String url = "jdbc:postgresql://localhost:5432/micro";
-    private static final String user = "admin";
-    private static final String password = "admin";
-    private static final String SQL = "INSERT INTO processedmessages(this_service, next_service) "
-            + "VALUES(?,?)";
-    private static final String INVOKED_SQL = "INSERT INTO invokedservices(name, invoke_time) "
-            + "VALUES(?,?)";
+    @Value("${POSTGRES_DB}")
+    private String POSTGRES_DB;
 
+    @Value("${POSTGRES_PASSWORD}")
+    private String POSTGRES_PASSWORD;
 
-    public void saveToDb(String thisService, String nextService) {
+    @Value("${POSTGRES_USER}")
+    private String POSTGRES_USER;
 
-        try (Connection con = DriverManager.getConnection(url, user, password);
+    private final Logger LOGGER = LogManager.getLogger(PostgreComponent.class);
 
-             PreparedStatement pstmt = con.prepareStatement(SQL,
-                     Statement.RETURN_GENERATED_KEYS)) {
+    private static final String SQL = "SELECT * FROM invokedservices WHERE id = ?";
 
-            pstmt.setString(1, thisService);
-            pstmt.setString(2, nextService);
+    public List<DbRecord> getHistoryById(String id) {
 
-            pstmt.executeUpdate();
+        Record microService = new Record();
+
+        List<DbRecord> microServices = new ArrayList<>();
+
+        String url = "jdbc:postgresql://postgres-service:5432/" + POSTGRES_DB;
+
+        try (Connection con = DriverManager.getConnection(url, POSTGRES_USER, POSTGRES_PASSWORD);
+
+             PreparedStatement pstmt = con.prepareStatement(SQL)) {
+
+            pstmt.setString(1, id);
+            LOGGER.info("Invoked sql {}",pstmt.toString());
+            ResultSet resultSet = pstmt.executeQuery();
+
+            while (resultSet.next()) {
+                DbRecord dbRecord = new DbRecord();
+                dbRecord.setSourceMicroserviceId(resultSet.getString("source_microservice_id"));
+                dbRecord.setSourceMicroserviceName(resultSet.getString("source_microservice_name"));
+                dbRecord.setTargetMicroserviceId(resultSet.getString("target_microservice_id"));
+                dbRecord.setTargetMicroserviceName(resultSet.getString("target_microservice_name"));
+                dbRecord.setTimestamp(resultSet.getTimestamp("invoke_time"));
+                LOGGER.info("Created Record {}", dbRecord);
+                microServices.add(dbRecord);
+            }
+
+            microServices.sort(Comparator.comparing(DbRecord::getTimestamp));
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }
 
-    public void saveToDb(String thisService) {
-
-        Instant instant = Instant.now();
-        Timestamp timestamp = Timestamp.from(instant);
-
-        try (Connection con = DriverManager.getConnection(url, user, password);
-             Statement st = con.createStatement();
-
-             PreparedStatement pstmt = con.prepareStatement(INVOKED_SQL,
-                     Statement.RETURN_GENERATED_KEYS)) {
-
-            pstmt.setString(1, thisService);
-            pstmt.setTimestamp(2, timestamp);
-
-            pstmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        return microServices;
     }
 
 }

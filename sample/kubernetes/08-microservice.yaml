@@ -1,0 +1,188 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice
+    microserviceId: "define-order-type"
+  name: microservice
+  annotations:
+    microserviceName: "Определить тип приказа"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice
+  template:
+    metadata:
+      labels:
+        app: microservice
+    spec:
+      containers:
+        - name: microservice
+          image: microservice
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice2
+    microserviceId: "send-rpt-notif-head"
+  name: microservice2
+  annotations:
+    microserviceName: "Отправить отчет и уведомление руководителю о выполнении запроса"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice2
+  template:
+    metadata:
+      labels:
+        app: microservice2
+    spec:
+      containers:
+        - name: microservice2
+          image: microservice2
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice3
+    microserviceId: "send-notif-empl"
+  name: microservice3
+  annotations:
+    microserviceName: "Разослать уведомления сотрудникам"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice3
+  template:
+    metadata:
+      labels:
+        app: microservice3
+    spec:
+      containers:
+        - name: microservice3
+          image: microservice3
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice4
+    microserviceId: "register-publications-list"
+  name: microservice4
+  annotations:
+    microserviceName: "Регистрация списка публикаций"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice4
+  template:
+    metadata:
+      labels:
+        app: microservice4
+    spec:
+      containers:
+        - name: microservice4
+          image: microservice4
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice5
+    microserviceId: "form-list-publications"
+  name: microservice5
+  annotations:
+    microserviceName: "Сформировать список публикаций"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice5
+  template:
+    metadata:
+      labels:
+        app: microservice5
+    spec:
+      containers:
+        - name: microservice5
+          image: microservice5
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice6
+    microserviceId: "register-report"
+  name: microservice6
+  annotations:
+    microserviceName: "Зарегистрировать отчет"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice6
+  template:
+    metadata:
+      labels:
+        app: microservice6
+    spec:
+      containers:
+        - name: microservice6
+          image: microservice6
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: microservice7
+    microserviceId: "register-notification"
+  name: microservice7
+  annotations:
+    microserviceName: "Зарегистрировать уведомление"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: microservice7
+  template:
+    metadata:
+      labels:
+        app: microservice7
+    spec:
+      containers:
+        - name: microservice7
+          image: microservice7
+          imagePullPolicy: "IfNotPresent"
+          envFrom:
+            - configMapRef:
+                name: postgres-config

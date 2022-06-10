@@ -1,3 +1,5 @@
+cd C:\Uni\ВКР\Projects\sample\application && docker build . -t application
+
 cd C:\Uni\ВКР\Projects\sample\microservice && docker build . -t microservice
 
 cd C:\Uni\ВКР\Projects\sample\microservice2 && docker build . -t microservice2

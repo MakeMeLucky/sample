@@ -1,0 +1,23 @@
+cd C:\Uni\ВКР\Projects\sample\application && docker save application > application.tar
+docker load < application.tar
+
+cd C:\Uni\ВКР\Projects\sample\microservice && docker save microservice > microservice.tar
+docker load < microservice.tar
+
+cd C:\Uni\ВКР\Projects\sample\microservice2 && docker save microservice2 > microservice2.tar
+docker load < microservice2.tar
+
+cd C:\Uni\ВКР\Projects\sample\microservice3 && docker save microservice3 > microservice3.tar
+docker load < microservice3.tar
+
+cd C:\Uni\ВКР\Projects\sample\microservice4 && docker save microservice4 > microservice4.tar
+docker load < microservice4.tar
+
+cd C:\Uni\ВКР\Projects\sample\microservice5 && docker save microservice5 > microservice5.tar
+docker load < microservice5.tar
+
+cd C:\Uni\ВКР\Projects\sample\microservice6 && docker save microservice6 > microservice6.tar
+docker load < microservice6.tar
+
+cd C:\Uni\ВКР\Projects\sample\microservice7 && docker save microservice7 > microservice7.tar
+docker load < microservice7.tar

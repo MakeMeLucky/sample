@@ -1,0 +1,62 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  labels:
+    app: postgres-service
+spec:
+  type: NodePort
+  ports:
+    - name: postgres-port
+      port: 5432
+      nodePort: 30432
+      targetPort: 5432
+  selector:
+   app: postgres
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:13.3
+          imagePullPolicy: "IfNotPresent"
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - configMapRef:
+                name: postgres-config
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgredb
+            - mountPath: /docker-entrypoint-initdb.d 
+              name: init-postgres
+      volumes:
+        - name: postgredb
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
+        - name: init-postgres
+          configMap:
+            name: postgres-init-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-config
+data:
+  init.sql: | 
+    CREATE DATABASE micro;
+    CREATE TABLE invokedservices (id text NOT NULL, source_microservice_id text NOT NULL, source_microservice_name text NOT NULL, target_microservice_id text, target_microservice_name text, invoke_time TIMESTAMPTZ);

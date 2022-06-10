@@ -1,5 +1,7 @@
 package org.example.microservice5.sql;
 
+import org.example.microservice5.kafka.model.Record;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.sql.*;
@@ -8,47 +10,37 @@ import java.time.Instant;
 @Component
 public class PostgreComponent {
 
-    private static final String url = "jdbc:postgresql://postgres:5432/micro";
-    private static final String user = "admin";
-    private static final String password = "admin";
-    private static final String SQL = "INSERT INTO processedmessages(this_service, next_service) "
-            + "VALUES(?,?)";
-    private static final String INVOKED_SQL = "INSERT INTO invokedservices(name, invoke_time) "
-            + "VALUES(?,?)";
+    @Value("${POSTGRES_DB}")
+    private String POSTGRES_DB;
+
+    @Value("${POSTGRES_PASSWORD}")
+    private String POSTGRES_PASSWORD;
+
+    @Value("${POSTGRES_USER}")
+    private String POSTGRES_USER;
+
+    private static final String SQL = "INSERT INTO invokedservices(id, source_microservice_id, source_microservice_name," +
+            " target_microservice_id, target_microservice_name, invoke_time) "
+            + "VALUES(?,?,?,?,?,?)";
 
 
-    public void saveToDb(String thisService, String nextService) {
-
-        try (Connection con = DriverManager.getConnection(url, user, password);
-             Statement st = con.createStatement();
-
-             PreparedStatement pstmt = con.prepareStatement(SQL,
-                     Statement.RETURN_GENERATED_KEYS)) {
-
-            pstmt.setString(1, thisService);
-            pstmt.setString(2, nextService);
-
-            pstmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-
-    public void saveToDb(String thisService) {
+    public void saveToDb(Record record, Record nextRecord) {
 
         Instant instant = Instant.now();
         Timestamp timestamp = Timestamp.from(instant);
 
-        try (Connection con = DriverManager.getConnection(url, user, password);
-             Statement st = con.createStatement();
+        String url = "jdbc:postgresql://postgres-service:5432/" + POSTGRES_DB;
 
-             PreparedStatement pstmt = con.prepareStatement(INVOKED_SQL,
+        try (Connection con = DriverManager.getConnection(url, POSTGRES_USER, POSTGRES_PASSWORD);
+             PreparedStatement pstmt = con.prepareStatement(SQL,
                      Statement.RETURN_GENERATED_KEYS)) {
 
-            pstmt.setString(1, thisService);
-            pstmt.setTimestamp(2, timestamp);
+            pstmt.setString(1, record.getId());
+            pstmt.setString(2, record.getMicroserviceId());
+            pstmt.setString(3, record.getMicroserviceName());
+            pstmt.setString(4, nextRecord.getMicroserviceId());
+            pstmt.setString(5, nextRecord.getMicroserviceName());
+            pstmt.setTimestamp(6, timestamp);
 
             pstmt.executeUpdate();
 
@@ -56,6 +48,4 @@ public class PostgreComponent {
             e.printStackTrace();
         }
     }
-
-
 }

@@ -1,5 +1,7 @@
 package org.example.microservice5.kafka;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.example.microservice5.kafka.model.Record;
 import org.example.microservice5.sql.PostgreComponent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +20,19 @@ public class KafkaService {
     @Autowired
     private KafkaTemplate<String, Record> kafkaTemplate;
 
+    private final Logger LOGGER = LogManager.getLogger(KafkaService.class);
+
     @KafkaListener(topics = "${kafka.topic}", groupId = "${kafka.group.id}")
     public void poll(Record record) {
-        postgreComponent.saveToDb(record.getId());
+        LOGGER.info("Got record {}", record);
         List<Record> child = record.getChildRecords();
         if (child != null) {
             child.forEach(children -> {
-                sendMessage(children.getId(), children);
-                postgreComponent.saveToDb(record.getId(), children.getId());
+                sendMessage(children.getMicroserviceId(), children);
+                postgreComponent.saveToDb(record, children);
             });
+        } else {
+            postgreComponent.saveToDb(record, new Record());
         }
     }
 
