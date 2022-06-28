@@ -1,19 +1,16 @@
 package org.example.application.bpmn.model;
 
-
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
 
-
-@Data
+@Getter
+@Setter
 @XmlRootElement(name = "definitions")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Definitions {
-
-    @XmlAttribute
-    private String id;
+public class Definitions extends BPMNElementId {
 
     @XmlElement(name = "collaboration")
     private Collaboration collaboration;

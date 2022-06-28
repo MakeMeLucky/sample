@@ -3,7 +3,7 @@ package org.example.microservice7.kafka;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.microservice7.kafka.model.Record;
-import org.example.microservice7.sql.PostgreComponent;
+import org.example.microservice7.storage.PostgreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,7 +15,7 @@ import java.util.List;
 public class KafkaService {
 
     @Autowired
-    PostgreComponent postgreComponent;
+    PostgreService postgreService;
 
     @Autowired
     private KafkaTemplate<String, Record> kafkaTemplate;
@@ -29,10 +29,10 @@ public class KafkaService {
         if (child != null) {
             child.forEach(children -> {
                 sendMessage(children.getMicroserviceId(), children);
-                postgreComponent.saveToDb(record, children);
+                postgreService.saveToDb(record, children);
             });
         } else {
-            postgreComponent.saveToDb(record, new Record());
+            postgreService.saveToDb(record, new Record());
         }
     }
 

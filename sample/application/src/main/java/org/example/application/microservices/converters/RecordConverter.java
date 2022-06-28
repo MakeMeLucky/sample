@@ -25,9 +25,9 @@ public class RecordConverter {
 
     public String convert(Definitions definitions) throws Exception {
 
-        String uuid = String.join("-", UUID.randomUUID().toString(), Long.toString(System.currentTimeMillis()));
-
         List<MicroService> microServices = clusterService.getAvailableMicroservices();
+
+        String uuid = String.join("-", UUID.randomUUID().toString(), Long.toString(System.currentTimeMillis()));
 
         // message flows
         List<MessageFlow> messageFlows = definitions.getCollaboration().getMessageFlows();
@@ -42,14 +42,14 @@ public class RecordConverter {
                 .flatMap(process -> process.getTasks().stream())
                 .collect(Collectors.toList());
 
-        // <id, task>
-        Map<String, Task> taskMap = tasks.stream()
-                .collect(Collectors.toMap(Task::getId, Function.identity()));
-
         // events
         List<StartEvent> events = definitions.getProcess().stream()
                 .flatMap(process -> process.getEvents().stream())
                 .collect(Collectors.toList());
+
+        // <id, task>
+        Map<String, Task> taskMap = tasks.stream()
+                .collect(Collectors.toMap(Task::getId, Function.identity()));
 
         // <id, event>
         Map<String, StartEvent> eventMap = events.stream()
@@ -74,7 +74,7 @@ public class RecordConverter {
         SequenceFlow currentSequenceFlow = sequenceFlows.stream()
                 .filter(sf->sf.getId().equals(currentSequenceFlowId))
                 .findFirst()
-                .get();
+                .orElseThrow(()->new RuntimeException("Event has to have a sequence flow"));
         String taskId = currentSequenceFlow.getTargetRef();
         List<MessageFlow> currentMessageFlows = messageFlows.stream()
                 .filter(mf->mf.getSourceRef().equals(taskId))

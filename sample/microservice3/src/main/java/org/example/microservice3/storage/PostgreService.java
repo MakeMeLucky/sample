@@ -1,4 +1,4 @@
-package org.example.microservice3.sql;
+package org.example.microservice3.storage;
 
 import org.example.microservice3.kafka.model.Record;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,7 +8,7 @@ import java.sql.*;
 import java.time.Instant;
 
 @Component
-public class PostgreComponent {
+public class PostgreService {
 
     @Value("${POSTGRES_DB}")
     private String POSTGRES_DB;

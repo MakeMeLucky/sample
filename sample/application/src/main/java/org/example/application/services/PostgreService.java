@@ -3,7 +3,6 @@ package org.example.application.services;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.example.application.microservices.model.DbRecord;
-import org.example.application.microservices.model.MicroService;
 import org.example.application.microservices.model.Record;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,7 +13,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Component
-public class PostgreComponent {
+public class PostgreService {
 
     @Value("${POSTGRES_DB}")
     private String POSTGRES_DB;
@@ -25,7 +24,7 @@ public class PostgreComponent {
     @Value("${POSTGRES_USER}")
     private String POSTGRES_USER;
 
-    private final Logger LOGGER = LogManager.getLogger(PostgreComponent.class);
+    private final Logger LOGGER = LogManager.getLogger(PostgreService.class);
 
     private static final String SQL = "SELECT * FROM invokedservices WHERE id = ?";
 

@@ -9,7 +9,7 @@ import javax.xml.bind.JAXBException;
 import java.io.IOException;
 
 @Component
-public class BPMNRepositoryComponent {
+public class BPMNConverter {
 
     public Definitions unmarshall(MultipartFile file) throws JAXBException, IOException {
         JAXBContext jaxbContext = JAXBContext.newInstance(Definitions.class);

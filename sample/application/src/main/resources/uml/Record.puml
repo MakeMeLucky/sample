@@ -1,0 +1,19 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Microservice {
+-microserviceId: String
+-microserviceName: String
++setMicroserviceId(): void
++getMicroserviceId(): String
++setMicroserviceName(): void
++getMicroserviceName(): String
+}
+class Record {
+-childRecords: List<Record>
++addRecord(record: Record): void
+}
+
+Microservice <|-- Record
+
+@enduml

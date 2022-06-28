@@ -1,0 +1,179 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+abstract class BPMNElementId {
+-id: String
++getId(): String
++setId(): void
+}
+
+class Definitions {
+-collaboration: Collaboration
+-process: List<Process>
++getCollaboration(): Collaboration
++setCollaboration(): void
++getProcess(): List<Process>
++setProcess(): void
+}
+
+class Collaboration {
+-participants: List<Participant>
+-messageFlows: List<MessageFlow>
++setParticipants(): void
++getParticipants(): List<Participant>
++setMessageFlows(): void
++getMessageFlows(): List<MessageFlow>
+}
+
+class Participant {
+-name: String
+-processRef: String
++setName(): void
++getName(): String
++setProcessRef(): void
++getProcessRef(): String
+}
+
+class MessageFlow {
+-sourceRef: String
+-targetRef: String
++setSourceRef(): void
++getSourceRef(): String
++setTargetRef(): void
++getTargetRef(): String
+}
+
+class Process {
+-isExecutable: String
+-events: List<StartEvent>
+-dataObjectReferences: List<DataObjectReference>
+-dataObjects: List<DataObject>
+-sequenceFlows: List<SequenceFlow>
+-tasks: List<Task>
+-endEvents: List<EndEvent>
+-exclusiveGateways: List<ExclusiveGateway>
++setIsExecutable(): void
++getIsExecutable(): String
++setEvents(): void
++getEvents(): List<StartEvent>
++setDataObjectReferences(): void
++getDataObjectReferences(): List<DataObjectReference>
++setDataObjects(): void
++getDataObjects(): List<DataObject>
++setSequenceFlows(): void
++getSequenceFlows(): List<SequenceFlow>
++setTasks(): void
++getTasks(): List<Task>
++setEndEvents(): void
++getEndEvents(): List<EndEvent>
++setExclusiveGateways(): void
++getExclusiveGateways(): List<ExclusiveGateway>
+}
+
+class StartEvent {
+-outGoing: OutGoing;
+-incoming: Incoming;
+-messageEventDefinition: MessageEventDefinition;
++setOutGoing(): void
++getOutGoing(): OutGoing
++setIncoming(): void
++getIncoming(): Incoming
++setMessageEventDefinition(): void
++getMessageEventDefinition(): MessageEventDefinition
+}
+
+class OutGoing {
+-value: String
++setValue(): void
++getValue(): String
+}
+
+class Incoming {
+-value: String
++setValue(): void
++getValue(): String
+}
+
+class MessageEventDefinition {
+
+}
+
+class DataObjectReference {
+-name: String
+-dataObjectRef: String
++setName(): void
++getName(): String
++setDataObjectRef(): void
++getDataObjectRef(): String
+}
+
+class DataObject {
+
+}
+
+class SequenceFlow {
+-String sourceRef;
+-String targetRef;
+
++setSourceRef(): void
++getSourceRef(): String
++setTargetRef(): void
++getTargetRef(): String
+}
+
+class Task {
+-name: String
+-outGoing: OutGoing;
+-incoming: Incoming;
+
++setName(): void
++getName(): String
++setOutGoing(): void
++getOutGoing(): OutGoing
++setIncoming(): void
++getIncoming(): Incoming
+}
+
+class EndEvent {
+
+}
+
+class ExclusiveGateway {
+
+}
+
+Definitions *-- Collaboration
+Definitions *-- Process
+
+Collaboration *-- Participant
+Collaboration *-- MessageFlow
+
+Process *-- StartEvent
+Process *-- DataObjectReference
+Process *-- DataObject
+Process *-- SequenceFlow
+Process *-- Task
+Process *-- EndEvent
+Process *-- ExclusiveGateway
+
+StartEvent *-- OutGoing
+StartEvent *-- Incoming
+StartEvent *-- MessageEventDefinition
+
+Task *-- OutGoing
+Task *-- Incoming
+
+BPMNElementId <|-- Definitions
+BPMNElementId <|-- Collaboration
+BPMNElementId <|-- Participant
+BPMNElementId <|-- DataObject
+BPMNElementId <|-- DataObjectReference
+BPMNElementId <|-- EndEvent
+BPMNElementId <|-- ExclusiveGateway
+BPMNElementId <|-- MessageEventDefinition
+BPMNElementId <|-- MessageFlow
+BPMNElementId <|-- Process
+BPMNElementId <|-- SequenceFlow
+BPMNElementId <|-- StartEvent
+BPMNElementId <|-- Task
+@enduml

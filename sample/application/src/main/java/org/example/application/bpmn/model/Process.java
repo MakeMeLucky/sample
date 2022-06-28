@@ -1,17 +1,16 @@
 package org.example.application.bpmn.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.xml.bind.annotation.*;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @XmlRootElement(name = "process")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Process {
-
-    @XmlAttribute
-    private String id;
+public class Process extends BPMNElementId{
 
     @XmlAttribute
     private String isExecutable;

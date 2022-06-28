@@ -1,16 +1,15 @@
 package org.example.application.bpmn.model;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.xml.bind.annotation.*;
 
-@Data
+@Getter
+@Setter
 @XmlRootElement(name = "startEvent")
 @XmlAccessorType(XmlAccessType.FIELD)
-public class StartEvent {
-
-    @XmlAttribute
-    private String id;
+public class StartEvent extends BPMNElementId {
 
     @XmlElement(name = "outgoing")
     private OutGoing outGoing;

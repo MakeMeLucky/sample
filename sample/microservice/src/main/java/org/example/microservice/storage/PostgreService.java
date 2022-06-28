@@ -1,6 +1,6 @@
-package org.example.microservice5.sql;
+package org.example.microservice.storage;
 
-import org.example.microservice5.kafka.model.Record;
+import org.example.microservice.kafka.model.Record;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -8,7 +8,7 @@ import java.sql.*;
 import java.time.Instant;
 
 @Component
-public class PostgreComponent {
+public class PostgreService {
 
     @Value("${POSTGRES_DB}")
     private String POSTGRES_DB;
