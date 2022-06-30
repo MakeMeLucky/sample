@@ -1,0 +1,18 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+actor Пользователь as User
+box "Application" #LightGrey
+participant AppService
+participant PostgreService
+end box
+
+User -> AppService: запрос
+activate AppService
+AppService -> PostgreService: делегирование
+PostgreService -> PostgreService: подготовка запроса в БД
+PostgreService -> PostgreService: обработка результата
+PostgreService -> AppService: список
+AppService -> User: ответ
+@enduml

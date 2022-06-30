@@ -1,0 +1,40 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+actor Пользователь as User
+
+box "Application" #LightGrey
+participant AppService
+participant BPMNConverter
+participant RecordConverter
+participant ClusterService
+participant KafkaService
+'participant PostgreService
+end box
+
+User -> AppService: запрос на создание процесса
+activate AppService
+AppService -> BPMNConverter: запрос на маршалинг файла
+AppService <- BPMNConverter: объект Definitions
+AppService -> RecordConverter: запрос на конвертацию
+activate RecordConverter
+RecordConverter -> ClusterService: запрос списка микросервисов
+ClusterService -> RecordConverter: список
+RecordConverter -> RecordConverter: генерация id
+RecordConverter -> RecordConverter: конвертация
+RecordConverter -> KafkaService: запрос на отправку сообщения
+KafkaService -> KafkaService: подготовка сообщения
+KafkaService ->> Kafka: отправка сообщения
+RecordConverter -> AppService: возврат id
+deactivate RecordConverter
+User <- AppService: возврат id
+deactivate AppService
+
+activate Microservice
+Kafka ->> Microservice: чтение сообщения
+Microservice -> Microservice: обработка сообщения
+Microservice ->> Kafka: отправка сообщения
+Microservice -> Postgres: запись
+deactivate Microservice
+@enduml
